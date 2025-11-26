@@ -23,7 +23,7 @@ This test suite helps assess how well CTI browser extensions can detect and high
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR-USERNAME/browser-extension-test.git
+git clone https://github.com/maelv-filigran/browser-extension-test.git
 cd browser-extension-test
 
 # Open in browser
