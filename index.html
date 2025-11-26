@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CTI Browser Extension Test Suite</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .intro {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .test-section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .badge-baseline { background: #27ae60; color: white; }
+        .badge-dynamic { background: #f39c12; color: white; }
+        .badge-obfuscation { background: #e74c3c; color: white; }
+        .badge-advanced { background: #9b59b6; color: white; }
+        
+        .ioc {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px 5px 5px 0;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        .dynamic-content {
+            min-height: 50px;
+            padding: 10px;
+            background: white;
+            border: 2px dashed #3498db;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        
+        .content-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: #ecf0f1;
+            border-radius: 3px;
+        }
+        
+        canvas {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+        }
+        
+        .shadow-host {
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #9b59b6;
+            border-radius: 5px;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 200px;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        
+        table th {
+            background: #3498db;
+            color: white;
+        }
+        
+        .test-description {
+            color: #7f8c8d;
+            font-size: 14px;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+        
+        .ioc-count {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        
+        .form-group {
+            margin: 10px 0;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .performance-test {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: white;
+        }
+        
+        .results-table {
+            margin-top: 30px;
+        }
+        
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .checklist li {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checklist input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 CTI Browser Extension Test Suite</h1>
+        
+        <div class="intro">
+            <p><strong>Purpose:</strong> Test the capabilities and limitations of CTI (Cyber Threat Intelligence) browser extensions.</p>
+            <p><strong>Instructions:</strong> Install your CTI extension, load this page, and observe which IOCs are detected and highlighted in each section.</p>
+            <p><strong>Extensions tested:</strong> OpenCTI, Anomali Copilot, Check Point Intelligence, CrowdScrape, Cyware, EclecticIQ, Mandiant Advantage, ThreatQ</p>
+        </div>
+
+        <!-- Section 1: Static IOCs (Baseline) -->
+        <div class="test-section">
+            <h2><span class="badge badge-baseline">Baseline</span> Static IOCs <span class="ioc-count">15 IOCs</span></h2>
+            <p class="test-description">Basic test with static HTML content. All extensions should detect these IOCs.</p>
+            
+            <p>Suspicious IP addresses: <span class="ioc">192.0.2.1</span>, <span class="ioc">198.51.100.42</span>, <span class="ioc">203.0.113.255</span></p>
+            
+            <p>Malicious domains: <span class="ioc">malware-example.com</span>, <span class="ioc">phishing-site.net</span>, <span class="ioc">evil-domain.org</span></p>
+            
+            <p>URLs: <span class="ioc">https://attacker-server.com/payload.exe</span>, <span class="ioc">http://c2-server.net/beacon</span></p>
+            
+            <p>File hashes (MD5): <span class="ioc">5d41402abc4b2a76b9719d911017c592</span></p>
+            <p>SHA1: <span class="ioc">aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d</span></p>
+            <p>SHA256: <span class="ioc">2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae</span></p>
+            
+            <p>CVE: <span class="ioc">CVE-2024-1234</span>, <span class="ioc">CVE-2023-9876</span></p>
+            
+            <p>Email: <span class="ioc">attacker@malicious-domain.com</span></p>
+        </div>
+
+        <!-- Section 2: Dynamic Content (SPA Simulation) -->
+        <div class="test-section">
+            <h2><span class="badge badge-dynamic">Dynamic</span> Dynamic Content (SPA Simulation)</h2>
+            <p class="test-description">Tests MutationObserver implementation. IOCs are added after initial page load.</p>
+            
+            <button onclick="loadMoreContent()">Load More IOCs</button>
+            <button onclick="startAutoLoad()">Start Auto-Load (5s)</button>
+            <button onclick="stopAutoLoad()">Stop Auto-Load</button>
+            <button onclick="clearDynamicContent()">Clear</button>
+            
+            <div id="dynamic-content" class="dynamic-content">
+                <p><em>Click "Load More IOCs" to add dynamic content...</em></p>
+            </div>
+        </div>
+
+        <!-- Section 3: React/Vue Simulation (Re-rendering) -->
+        <div class="test-section">
+            <h2><span class="badge badge-dynamic">Dynamic</span> Virtual DOM / Re-rendering</h2>
+            <p class="test-description">Simulates React/Vue re-renders. Tests if highlights persist after DOM updates.</p>
+            
+            <button onclick="reRenderComponent()">Re-render Component</button>
+            <button onclick="startAutoRerender()">Start Auto Re-render (3s)</button>
+            <button onclick="stopAutoRerender()">Stop Auto Re-render</button>
+            
+            <div id="react-component" class="dynamic-content">
+                <div class="content-item">
+                    Component rendered at: <span id="render-time">--</span><br>
+                    Malicious IP: <span class="ioc">10.0.0.1</span><br>
+                    C2 Domain: <span class="ioc">command-control.xyz</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Obfuscation Techniques -->
+        <div class="test-section">
+            <h2><span class="badge badge-obfuscation">Obfuscation</span> Obfuscation Tests</h2>
+            <p class="test-description">Tests various obfuscation techniques. Most extensions will fail these tests.</p>
+            
+            <h3>4.1 Canvas Rendering</h3>
+            <p>IOC drawn in canvas (not accessible to DOM parsers):</p>
+            <canvas id="canvas-test" width="400" height="60"></canvas>
+            <button onclick="drawCanvas()">Draw IOC in Canvas</button>
+            
+            <h3>4.2 Base64 Encoding</h3>
+            <p>Base64 encoded IP: <span class="ioc">MTkyLjAuMi4x</span> (decodes to 192.0.2.1)</p>
+            <p>Base64 encoded domain: <span class="ioc">bWFsd2FyZS1leGFtcGxlLmNvbQ==</span> (decodes to malware-example.com)</p>
+            
+            <h3>4.3 CSS Pseudo-elements</h3>
+            <style>
+                .pseudo-ioc::before { content: "192.168.1.100"; }
+                .pseudo-ioc::after { content: " - malicious-server.com"; }
+            </style>
+            <p>IOC in CSS pseudo-elements: <span class="pseudo-ioc"></span></p>
+            
+            <h3>4.4 Zero-width Characters</h3>
+            <p>IOC with zero-width chars: <span class="ioc">192​.0​.2​.1</span> (contains U+200B)</p>
+            
+            <h3>4.5 Homoglyphs</h3>
+            <p>Domain with Cyrillic 'a': <span class="ioc">mаlware.com</span> (а is Cyrillic, not Latin)</p>
+        </div>
+
+        <!-- Section 5: Shadow DOM -->
+        <div class="test-section">
+            <h2><span class="badge badge-advanced">Advanced</span> Shadow DOM</h2>
+            <p class="test-description">Tests Shadow DOM access. Closed shadow roots are typically inaccessible.</p>
+            
+            <h3>5.1 Open Shadow DOM</h3>
+            <div id="shadow-open-host" class="shadow-host">
+                Shadow DOM (open) will be attached here...
+            </div>
+            <button onclick="createOpenShadow()">Create Open Shadow DOM</button>
+            
+            <h3>5.2 Closed Shadow DOM</h3>
+            <div id="shadow-closed-host" class="shadow-host">
+                Shadow DOM (closed) will be attached here...
+            </div>
+            <button onclick="createClosedShadow()">Create Closed Shadow DOM</button>
+        </div>
+
+        <!-- Section 6: Iframes -->
+        <div class="test-section">
+            <h2><span class="badge badge-advanced">Advanced</span> Iframes</h2>
+            <p class="test-description">Tests cross-frame access. Cross-origin iframes are blocked by Same-Origin Policy.</p>
+            
+            <h3>6.1 Same-origin Iframe</h3>
+            <button onclick="createSameOriginIframe()">Create Same-Origin Iframe</button>
+            <div id="iframe-container"></div>
+        </div>
+
+        <!-- Section 7: Forms & Inputs -->
+        <div class="test-section">
+            <h2><span class="badge badge-baseline">Baseline</span> Forms & Input Fields</h2>
+            <p class="test-description">Tests if extensions scan form elements.</p>
+            
+            <div class="form-group">
+                <label>IP Address Input:</label>
+                <input type="text" value="10.10.10.10" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label>Domain Input:</label>
+                <input type="text" value="attacker-domain.com" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label>Textarea with IOCs:</label>
+                <textarea readonly rows="4">
+Threat Report:
+Observed malicious traffic from 203.0.113.50
+Domain: threat-actor.net
+Hash: 098f6bcd4621d373cade4e832627b4f6
+                </textarea>
+            </div>
+        </div>
+
+        <!-- Section 8: Special Formats -->
+        <div class="test-section">
+            <h2><span class="badge badge-baseline">Baseline</span> Special Formats</h2>
+            <p class="test-description">Tests IOC detection in tables, lists, and code blocks.</p>
+            
+            <h3>8.1 Table</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>IOC Type</th>
+                        <th>Value</th>
+                        <th>Threat Level</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>IP</td>
+                        <td>192.0.2.100</td>
+                        <td>High</td>
+                    </tr>
+                    <tr>
+                        <td>Domain</td>
+                        <td>botnet-controller.com</td>
+                        <td>Critical</td>
+                    </tr>
+                    <tr>
+                        <td>SHA256</td>
+                        <td>e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</td>
+                        <td>Medium</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h3>8.2 Lists</h3>
+            <ul>
+                <li>Compromised server: 198.18.0.1</li>
+                <li>Phishing domain: fake-bank.com</li>
+                <li>C2 callback: https://evil-server.net/api/callback</li>
+            </ul>
+            
+            <h3>8.3 Code Block</h3>
+            <pre><code># Snort rule
+alert tcp any any -> 192.0.2.50 80 (msg:"Malicious traffic"; sid:1000001;)
+
+# Malware sample
+MD5: d41d8cd98f00b204e9800998ecf8427e
+Domain: malware-distribution.com
+</code></pre>
+        </div>
+
+        <!-- Section 9: Performance Test -->
+        <div class="test-section">
+            <h2><span class="badge badge-advanced">Advanced</span> Performance Test</h2>
+            <p class="test-description">Tests extension performance with large number of IOCs.</p>
+            
+            <button onclick="generateManyIOCs()">Generate 100 IOCs</button>
+            <button onclick="clearPerformanceTest()">Clear</button>
+            
+            <div id="performance-content" class="performance-test">
+                <p><em>Click "Generate 100 IOCs" to stress test the extension...</em></p>
+            </div>
+        </div>
+
+        <!-- Results Checklist -->
+        <div class="test-section results-table">
+            <h2>📊 Test Results Checklist</h2>
+            <p class="test-description">Use this checklist to track which tests your extension passes.</p>
+            
+            <ul class="checklist">
+                <li><input type="checkbox" id="test-1"><label for="test-1">✓ Static IOCs detected</label></li>
+                <li><input type="checkbox" id="test-2"><label for="test-2">✓ Dynamic content detected (after Load More)</label></li>
+                <li><input type="checkbox" id="test-3"><label for="test-3">✓ Re-rendered content maintains highlights</label></li>
+                <li><input type="checkbox" id="test-4"><label for="test-4">✓ Canvas IOCs detected</label></li>
+                <li><input type="checkbox" id="test-5"><label for="test-5">✓ Base64 IOCs decoded and detected</label></li>
+                <li><input type="checkbox" id="test-6"><label for="test-6">✓ CSS pseudo-element IOCs detected</label></li>
+                <li><input type="checkbox" id="test-7"><label for="test-7">✓ Zero-width char IOCs detected</label></li>
+                <li><input type="checkbox" id="test-8"><label for="test-8">✓ Homoglyph IOCs detected</label></li>
+                <li><input type="checkbox" id="test-9"><label for="test-9">✓ Open Shadow DOM IOCs detected</label></li>
+                <li><input type="checkbox" id="test-10"><label for="test-10">✓ Closed Shadow DOM IOCs detected</label></li>
+                <li><input type="checkbox" id="test-11"><label for="test-11">✓ Same-origin iframe IOCs detected</label></li>
+                <li><input type="checkbox" id="test-12"><label for="test-12">✓ Form input IOCs detected</label></li>
+                <li><input type="checkbox" id="test-13"><label for="test-13">✓ Table IOCs detected</label></li>
+                <li><input type="checkbox" id="test-14"><label for="test-14">✓ List IOCs detected</label></li>
+                <li><input type="checkbox" id="test-15"><label for="test-15">✓ Code block IOCs detected</label></li>
+                <li><input type="checkbox" id="test-16"><label for="test-16">✓ Performance test (100 IOCs) handled well</label></li>
+            </ul>
+            
+            <button onclick="exportResults()" style="margin-top: 20px;">Export Results as JSON</button>
+        </div>
+    </div>
+
+    <script>
+        // Dynamic content management
+        let autoLoadInterval = null;
+        let autoRerenderInterval = null;
+        let dynamicIOCs = [
+            '172.16.0.1',
+            'dynamic-malware.com',
+            'https://late-loaded-threat.net/payload',
+            'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6',
+            'CVE-2024-9999',
+            'late-threat@evil.com'
+        ];
+        let iocCounter = 0;
+
+        function loadMoreContent() {
+            const container = document.getElementById('dynamic-content');
+            const ioc = dynamicIOCs[iocCounter % dynamicIOCs.length];
+            const item = document.createElement('div');
+            item.className = 'content-item';
+            item.innerHTML = `<strong>Dynamically added #${++iocCounter}:</strong> <span class="ioc">${ioc}</span> (timestamp: ${new Date().toLocaleTimeString()})`;
+            container.appendChild(item);
+        }
+
+        function startAutoLoad() {
+            stopAutoLoad();
+            autoLoadInterval = setInterval(loadMoreContent, 5000);
+            alert('Auto-load started (every 5 seconds)');
+        }
+
+        function stopAutoLoad() {
+            if (autoLoadInterval) {
+                clearInterval(autoLoadInterval);
+                autoLoadInterval = null;
+            }
+        }
+
+        function clearDynamicContent() {
+            document.getElementById('dynamic-content').innerHTML = '<p><em>Cleared. Click "Load More IOCs" to add content...</em></p>';
+            iocCounter = 0;
+        }
+
+        // Re-rendering simulation
+        function reRenderComponent() {
+            const component = document.getElementById('react-component');
+            const timestamp = new Date().toLocaleTimeString();
+            component.innerHTML = `
+                <div class="content-item">
+                    Component rendered at: <span id="render-time">${timestamp}</span><br>
+                    Malicious IP: <span class="ioc">10.0.0.1</span><br>
+                    C2 Domain: <span class="ioc">command-control.xyz</span>
+                </div>
+            `;
+        }
+
+        function startAutoRerender() {
+            stopAutoRerender();
+            autoRerenderInterval = setInterval(reRenderComponent, 3000);
+            alert('Auto re-render started (every 3 seconds)');
+        }
+
+        function stopAutoRerender() {
+            if (autoRerenderInterval) {
+                clearInterval(autoRerenderInterval);
+                autoRerenderInterval = null;
+            }
+        }
+
+        // Canvas rendering
+        function drawCanvas() {
+            const canvas = document.getElementById('canvas-test');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = '16px monospace';
+            ctx.fillText('IP Address: 192.0.2.1', 10, 25);
+            ctx.fillText('Domain: canvas-obfuscated.com', 10, 50);
+        }
+
+        // Shadow DOM
+        function createOpenShadow() {
+            const host = document.getElementById('shadow-open-host');
+            if (host.shadowRoot) {
+                alert('Open shadow DOM already created');
+                return;
+            }
+            const shadow = host.attachShadow({ mode: 'open' });
+            shadow.innerHTML = `
+                <style>
+                    .shadow-content { padding: 10px; background: #e8f8f5; border-radius: 3px; }
+                </style>
+                <div class="shadow-content">
+                    <p><strong>Inside Open Shadow DOM:</strong></p>
+                    <p>IP: 10.20.30.40</p>
+                    <p>Domain: shadow-malware.com</p>
+                    <p>Hash: 5f4dcc3b5aa765d61d8327deb882cf99</p>
+                </div>
+            `;
+        }
+
+        function createClosedShadow() {
+            const host = document.getElementById('shadow-closed-host');
+            if (host.shadowRoot || host._shadowCreated) {
+                alert('Closed shadow DOM already created');
+                return;
+            }
+            const shadow = host.attachShadow({ mode: 'closed' });
+            host._shadowCreated = true;
+            shadow.innerHTML = `
+                <style>
+                    .shadow-content { padding: 10px; background: #fadbd8; border-radius: 3px; }
+                </style>
+                <div class="shadow-content">
+                    <p><strong>Inside Closed Shadow DOM:</strong></p>
+                    <p>IP: 172.31.255.254</p>
+                    <p>Domain: hidden-threat.net</p>
+                    <p>Hash: 098f6bcd4621d373cade4e832627b4f6</p>
+                </div>
+            `;
+        }
+
+        // Iframe
+        function createSameOriginIframe() {
+            const container = document.getElementById('iframe-container');
+            const iframe = document.createElement('iframe');
+            iframe.srcdoc = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body { font-family: sans-serif; padding: 15px; }
+                        .ioc { background: #fff3cd; padding: 2px 4px; font-family: monospace; }
+                    </style>
+                </head>
+                <body>
+                    <h3>Inside Same-Origin Iframe</h3>
+                    <p>Malicious IP: <span class="ioc">192.0.2.250</span></p>
+                    <p>C2 Server: <span class="ioc">iframe-c2.com</span></p>
+                    <p>Hash: <span class="ioc">e99a18c428cb38d5f260853678922e03</span></p>
+                </body>
+                </html>
+            `;
+            container.innerHTML = '';
+            container.appendChild(iframe);
+        }
+
+        // Performance test
+        function generateManyIOCs() {
+            const container = document.getElementById('performance-content');
+            container.innerHTML = '<h3>Generated 100 IOCs:</h3>';
+            
+            for (let i = 1; i <= 100; i++) {
+                const div = document.createElement('div');
+                div.className = 'content-item';
+                const ip = `192.168.${Math.floor(i / 255)}.${i % 255}`;
+                const domain = `malware-${i}.example.com`;
+                const hash = Array(32).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+                div.innerHTML = `#${i}: <span class="ioc">${ip}</span> | <span class="ioc">${domain}</span> | <span class="ioc">${hash}</span>`;
+                container.appendChild(div);
+            }
+        }
+
+        function clearPerformanceTest() {
+            document.getElementById('performance-content').innerHTML = '<p><em>Click "Generate 100 IOCs" to stress test the extension...</em></p>';
+        }
+
+        // Export results
+        function exportResults() {
+            const results = {
+                timestamp: new Date().toISOString(),
+                tests: {}
+            };
+            
+            for (let i = 1; i <= 16; i++) {
+                const checkbox = document.getElementById(`test-${i}`);
+                results.tests[`test-${i}`] = checkbox.checked;
+            }
+            
+            const dataStr = JSON.stringify(results, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `cti-extension-test-results-${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize canvas on load
+        window.addEventListener('load', function() {
+            drawCanvas();
+        });
+    </script>
+</body>
+</html>
